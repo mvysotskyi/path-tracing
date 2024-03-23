@@ -1,0 +1,29 @@
+﻿  camera.cpp
+F:\na_nout\vs_projects\ConsoleApplication1\camera.h(17,21): warning C4305: 'initializing': truncation from 'double' to 'const float'
+  entity.cpp
+F:\na_nout\vs_projects\ConsoleApplication1\entity.cpp(5,2): error C2065: '_h_angle': undeclared identifier
+F:\na_nout\vs_projects\ConsoleApplication1\entity.cpp(10,2): error C2065: '_h_angle': undeclared identifier
+  fmath.cpp
+  main.cpp
+F:\na_nout\vs_projects\ConsoleApplication1\camera.h(17,21): warning C4305: 'initializing': truncation from 'double' to 'const float'
+F:\na_nout\vs_projects\ConsoleApplication1\main.cpp(20,10): fatal error C1083: Cannot open include file: 'GLFW/glfw3.h': No such file or directory
+  mesh.cpp
+  model.cpp
+  player.cpp
+F:\na_nout\vs_projects\ConsoleApplication1\camera.h(17,21): warning C4305: 'initializing': truncation from 'double' to 'const float'
+F:\na_nout\vs_projects\ConsoleApplication1\player.cpp(23,24): error C2065: '_h_angle': undeclared identifier
+F:\na_nout\vs_projects\ConsoleApplication1\player.cpp(24,24): error C2065: '_h_angle': undeclared identifier
+F:\na_nout\vs_projects\ConsoleApplication1\player.cpp(43,3): error C2065: '_h_angle': undeclared identifier
+F:\na_nout\vs_projects\ConsoleApplication1\player.cpp(47,20): error C2065: '_v_angle': undeclared identifier
+F:\na_nout\vs_projects\ConsoleApplication1\player.cpp(50,4): error C2065: '_v_angle': undeclared identifier
+  texture.cpp
+F:\na_nout\vs_projects\ConsoleApplication1\texture.cpp(41,40): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  tgareader.cpp
+F:\na_nout\vs_projects\ConsoleApplication1\tgareader.cpp(43,20): warning C4018: '<': signed/unsigned mismatch
+  vec.cpp
+F:\na_nout\vs_projects\ConsoleApplication1\vec\vec.cpp(72,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+F:\na_nout\vs_projects\ConsoleApplication1\vec\vec.cpp(67): message : while compiling class template member function 'float vec<float,3>::length(void)'
+F:\na_nout\vs_projects\ConsoleApplication1\vec\vec.cpp(103): message : see reference to class template instantiation 'vec<float,3>' being compiled
+F:\na_nout\vs_projects\ConsoleApplication1\vec\vec.cpp(91,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\na_nout\vs_projects\ConsoleApplication1\vec\vec.cpp(87): message : while compiling class template member function 'float *vec<float,3>::max_abs_coord(void)'
+  Generating Code...

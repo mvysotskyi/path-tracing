@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+        ToolsVersion="15.0">
+  <ItemGroup>
+  <PNGLibs Include="$(MSBuildThisFileDirectory)\lib\$(Platform)\$(PlatformToolset)\$(Configuration)\*.lib" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- Expland the items to a property -->
+    <PNGLibraries>@(PNGLibs)</PNGLibraries>
+    </PropertyGroup>
+    <ItemDefinitionGroup>
+    <ClCompile>
+        <AdditionalIncludeDirectories>
+            $(MSBuildThisFileDirectory)\include;%(AdditionalIncludeDirectories)
+        </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>
+          $(PNGLibraries);%(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
