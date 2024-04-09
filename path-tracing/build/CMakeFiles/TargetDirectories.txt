@@ -1,0 +1,3 @@
+/home/mykola/CLionProjects/path-tracing/build/CMakeFiles/path_tracing.dir
+/home/mykola/CLionProjects/path-tracing/build/CMakeFiles/edit_cache.dir
+/home/mykola/CLionProjects/path-tracing/build/CMakeFiles/rebuild_cache.dir
