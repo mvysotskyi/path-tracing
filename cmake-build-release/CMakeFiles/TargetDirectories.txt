@@ -1,3 +1,0 @@
-/home/waylex/AKS/TrulyFinal/path-tracing/path-tracing/cmake-build-release/CMakeFiles/path_tracing.dir
-/home/waylex/AKS/TrulyFinal/path-tracing/path-tracing/cmake-build-release/CMakeFiles/edit_cache.dir
-/home/waylex/AKS/TrulyFinal/path-tracing/path-tracing/cmake-build-release/CMakeFiles/rebuild_cache.dir
