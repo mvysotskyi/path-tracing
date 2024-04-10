@@ -101,7 +101,7 @@ int main()
         cs.use();
         cs.set_float("time", cnt);
         cs.set_int("frame", cnt);
-        glDispatchCompute((unsigned int)SCR_WIDTH, (unsigned int)SCR_HEIGHT, 1);
+        glDispatchCompute((unsigned int)SCR_WIDTH/16, (unsigned int)SCR_HEIGHT/16, 1);
 
         // make sure writing to image has finished before read
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);

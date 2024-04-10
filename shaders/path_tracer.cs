@@ -3,7 +3,7 @@
 const float PI = 3.14159265358979323846f;
 const float FLOAT_INF = 1e20f;
 
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D texture0;
 
