@@ -1,1 +1,0 @@
-/usr/bin/c++ -rdynamic CMakeFiles/path_tracing.dir/main.cpp.o CMakeFiles/path_tracing.dir/compute_shader.cpp.o CMakeFiles/path_tracing.dir/shader.cpp.o -o path_tracing  /usr/lib/x86_64-linux-gnu/libGL.so /usr/lib/x86_64-linux-gnu/libglfw.so.3.3 /usr/lib/x86_64-linux-gnu/libGLEW.so 
