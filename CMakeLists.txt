@@ -1,18 +1,20 @@
-cmake_minimum_required(VERSION 3.2)
-project(path_tracing)
+cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+set(PROJECT_NAME "bvh")
+set(EXE_NAME "bvh_test")
 
-add_executable(path_tracing main.cpp
-        compute_shader.cpp
-        shader.cpp)
+project(${PROJECT_NAME})
 
-target_include_directories(path_tracing PRIVATE include)
+add_executable(${EXE_NAME} src/main.cpp
+        src/tiny_obj_loader.cc
+)
 
-# OpenGL, GLFW, GLEW, glm
+target_include_directories(${EXE_NAME} PRIVATE include)
+
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glm REQUIRED)
 
-target_link_libraries(path_tracing OpenGL::GL glfw GLEW::GLEW glm::glm)
+target_link_libraries(${EXE_NAME} OpenGL::GL glfw GLEW::GLEW glm::glm OpenGL::GLU)
