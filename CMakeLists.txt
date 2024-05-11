@@ -8,6 +8,8 @@ project(${PROJECT_NAME})
 
 add_executable(${EXE_NAME} src/main.cpp
         src/tiny_obj_loader.cc
+        src/shader.cpp
+        src/compute_shader.cpp
 )
 
 target_include_directories(${EXE_NAME} PRIVATE include)
