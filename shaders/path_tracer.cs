@@ -301,7 +301,7 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
         1u);
     triangles[5] = Triangle(
         vec3[3](vec3(size, size, -size), vec3(size, size, size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-        vec3(10.0f),
+        vec3(0.0f),
         vec3(0),
         1u);
 
@@ -331,28 +331,33 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
 
     // Right-facing triangles
     triangles[10] = Triangle(
-        vec3[3](vec3(50, 50, 100), vec3(50, -50, 1000), vec3(-50, 50, 100)),vec3(0.0f,0.0f,0.0f),
+        vec3[3](vec3(50, 50, 300), vec3(50, -50, 300), vec3(-50, 50, 300)),vec3(0.0f,0.0f,0.0f),
         vec3(0),
-        vec3(0,0,1),
+        vec3(0,1,0),
 1u);
     triangles[1] = Triangle(
-        vec3[3](vec3(80, 80, -500), vec3(80, -80, -400), vec3(-80, 80, -500)),vec3(0.0f,0.0f,0.0f),
-        vec3(0.0f),
-        vec3(0.999f),
-2u);
+        vec3[3](vec3(80, 80, -480), vec3(80, -80, -500), vec3(-80, 80, -500)),vec3(0.0f,0.0f,0.0f),
+        vec3(0),
+        vec3(0,1,0),
+1u);
 
 
     while (true){
         int i = 0;
-        HitInfo info = FindHit(triangles[i], r);
-        while(info.dist < 0.0f){
-            i+= 1;
-            if (i>11){
-                return vec3(0);
-            }
+        HitInfo info;
+        HitInfo min_info;
+        min_info.dist = 999999999;
+        while(i < 5){
             info =  FindHit(triangles[i], r);
+            if (info.dist > 0){
+                if (info.dist < min_info.dist){
+                min_info = info;
+                }
+            }
+            i+= 1;
         }
-        if (info.dist < 0.0f){
+        info = min_info;
+        if ((info.dist < 0.0f) || (info.dist > 999999997)){
             return vec3(0);
         }
         L += F * info.emission;

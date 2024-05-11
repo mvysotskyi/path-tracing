@@ -8,8 +8,8 @@
 #include "shader.h"
 #include "compute_shader.h"
 
-#define SCR_WIDTH 800
-#define SCR_HEIGHT 600
+#define SCR_WIDTH 1920
+#define SCR_HEIGHT 1080
 
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
