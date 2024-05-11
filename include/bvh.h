@@ -10,6 +10,7 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include <fstream>
 
 #include "aabb.h"
 #include "triangle.h"
@@ -117,6 +118,67 @@ private:
         }
 
         return node;
+    }
+
+public:
+    std::vector<aabb> serialize() {
+        std::vector<aabb> boxes;
+        std::stack<bvh_node*> stack;
+        stack.push(root);
+
+        while (!stack.empty()) {
+            bvh_node* node = stack.top();
+            stack.pop();
+
+            boxes.push_back(node->box);
+
+            if (node->left) {
+                stack.push(node->left);
+            }
+
+            if (node->right) {
+                stack.push(node->right);
+            }
+        }
+
+        return boxes;
+    }
+
+    // Save a list of AABB boxes to an OBJ file
+    static void aabb_boxes_save_obj(const std::vector<aabb>& boxes, const std::string& filename) {
+        std::ofstream file(filename);
+        if (!file.is_open()) {
+            throw std::runtime_error("Failed to open file");
+        }
+
+        for (const auto& box : boxes) {
+            file << "v " << box.min_corner.data[0] << " " << box.min_corner.data[1] << " " << box.min_corner.data[2] << std::endl;
+            file << "v " << box.min_corner.data[0] << " " << box.min_corner.data[1] << " " << box.max_corner.data[2] << std::endl;
+            file << "v " << box.min_corner.data[0] << " " << box.max_corner.data[1] << " " << box.min_corner.data[2] << std::endl;
+            file << "v " << box.min_corner.data[0] << " " << box.max_corner.data[1] << " " << box.max_corner.data[2] << std::endl;
+            file << "v " << box.max_corner.data[0] << " " << box.min_corner.data[1] << " " << box.min_corner.data[2] << std::endl;
+            file << "v " << box.max_corner.data[0] << " " << box.min_corner.data[1] << " " << box.max_corner.data[2] << std::endl;
+            file << "v " << box.max_corner.data[0] << " " << box.max_corner.data[1] << " " << box.min_corner.data[2] << std::endl;
+            file << "v " << box.max_corner.data[0] << " " << box.max_corner.data[1] << " " << box.max_corner.data[2] << std::endl;
+        }
+
+        // Lines
+        for (size_t i = 0; i < boxes.size(); i++) {
+            file << "l " << i * 8 + 1 << " " << i * 8 + 2 << std::endl;
+            file << "l " << i * 8 + 1 << " " << i * 8 + 3 << std::endl;
+            file << "l " << i * 8 + 1 << " " << i * 8 + 5 << std::endl;
+            file << "l " << i * 8 + 2 << " " << i * 8 + 4 << std::endl;
+            file << "l " << i * 8 + 2 << " " << i * 8 + 6 << std::endl;
+            file << "l " << i * 8 + 3 << " " << i * 8 + 4 << std::endl;
+            file << "l " << i * 8 + 3 << " " << i * 8 + 7 << std::endl;
+            file << "l " << i * 8 + 4 << " " << i * 8 + 8 << std::endl;
+            file << "l " << i * 8 + 5 << " " << i * 8 + 6 << std::endl;
+            file << "l " << i * 8 + 5 << " " << i * 8 + 7 << std::endl;
+            file << "l " << i * 8 + 6 << " " << i * 8 + 8 << std::endl;
+            file << "l " << i * 8 + 7 << " " << i * 8 + 8 << std::endl;
+        }
+
+        file.close();
     }
 };
 
