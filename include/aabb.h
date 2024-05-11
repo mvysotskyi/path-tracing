@@ -18,6 +18,17 @@ public:
     aabb(): min_corner(), max_corner() {}
     aabb(const vector3& min_corner, const vector3& max_corner): min_corner(min_corner), max_corner(max_corner) {}
 
+    int longest_axis() const {
+        vector3 box_size = max_corner - min_corner;
+        if (box_size.data[0] > box_size.data[1] && box_size.data[0] > box_size.data[2]) {
+            return 0;
+        } else if (box_size.data[1] > box_size.data[2]) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
     static aabb from_triangle(const triangle& tri) {
         vector3 min_corner{std::min(tri.vertex(0).data[0], std::min(tri.vertex(1).data[0], tri.vertex(2).data[0])),
                            std::min(tri.vertex(0).data[1], std::min(tri.vertex(1).data[1], tri.vertex(2).data[1])),
@@ -25,6 +36,16 @@ public:
         vector3 max_corner{std::max(tri.vertex(0).data[0], std::max(tri.vertex(1).data[0], tri.vertex(2).data[0])),
                            std::max(tri.vertex(0).data[1], std::max(tri.vertex(1).data[1], tri.vertex(2).data[1])),
                            std::max(tri.vertex(0).data[2], std::max(tri.vertex(1).data[2], tri.vertex(2).data[2]))};
+        return aabb{min_corner, max_corner};
+    }
+
+    static aabb surrounding_box(const aabb& box0, const aabb& box1) {
+        vector3 min_corner{std::min(box0.min_corner.data[0], box1.min_corner.data[0]),
+                           std::min(box0.min_corner.data[1], box1.min_corner.data[1]),
+                           std::min(box0.min_corner.data[2], box1.min_corner.data[2])};
+        vector3 max_corner{std::max(box0.max_corner.data[0], box1.max_corner.data[0]),
+                           std::max(box0.max_corner.data[1], box1.max_corner.data[1]),
+                           std::max(box0.max_corner.data[2], box1.max_corner.data[2])};
         return aabb{min_corner, max_corner};
     }
 };

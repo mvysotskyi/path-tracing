@@ -5,6 +5,8 @@
 #ifndef BVH_BVH_H
 #define BVH_BVH_H
 
+#include <iostream>
+#include <stack>
 #include <vector>
 #include <limits>
 #include <algorithm>
@@ -23,38 +25,98 @@ public:
         centroid = box.min_corner * 0.5f + box.max_corner * 0.5f;
     }
 
-    aabb bounding_box() const {
+    const aabb& bounding_box() const {
         return box;
     }
 
     vector3 get_centroid() const {
         return centroid;
     }
+
+    const triangle& get_triangle() const {
+        return tri;
+    }
 };
 
+struct bvh_node {
+    aabb box;
+    bvh_node* left;
+    bvh_node* right;
+    bvh_primitive* primitive;
+};
 
 class bvh {
-    std::vector<bvh_primitive> primitives;
-    aabb box;
+    std::vector<bvh_primitive> m_primitives;
+    bvh_node* root;
 
 public:
     explicit bvh(const std::vector<triangle>& triangles) {
         for (const auto& tri : triangles) {
-            primitives.emplace_back(tri);
+            m_primitives.emplace_back(tri);
+        }
+    }
+
+    void build() {
+        root = build_recursive(m_primitives, 0, m_primitives.size());
+    }
+
+    const bvh_node* get() const {
+        if(root == nullptr)
+            throw std::runtime_error("BVH not built");
+        return root;
+    }
+
+    void print() {
+        std::stack<bvh_node*> stack;
+        stack.push(root);
+
+        while (!stack.empty()) {
+            bvh_node* node = stack.top();
+            stack.pop();
+
+            std::cout << "Box: (" << node->box.min_corner.data[0] << ", " << node->box.min_corner.data[1] << ", " << node->box.min_corner.data[2] << ") - ("
+                      << node->box.max_corner.data[0] << ", " << node->box.max_corner.data[1] << ", " << node->box.max_corner.data[2] << ")" << std::endl;
+
+            if (node->left) {
+                stack.push(node->left);
+            }
+
+            if (node->right) {
+                stack.push(node->right);
+            }
+        }
+    }
+
+private:
+    bvh_node* build_recursive(std::vector<bvh_primitive>& primitives, size_t start, size_t end) {
+        if (start == end) {
+            return nullptr;
         }
 
-        box = aabb{vector3{std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()},
-                   vector3{std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()}};
-
-        for (const auto& prim : primitives) {
-            box.min_corner.data[0] = std::min(box.min_corner.data[0], prim.bounding_box().min_corner.data[0]);
-            box.min_corner.data[1] = std::min(box.min_corner.data[1], prim.bounding_box().min_corner.data[1]);
-            box.min_corner.data[2] = std::min(box.min_corner.data[2], prim.bounding_box().min_corner.data[2]);
-
-            box.max_corner.data[0] = std::max(box.max_corner.data[0], prim.bounding_box().max_corner.data[0]);
-            box.max_corner.data[1] = std::max(box.max_corner.data[1], prim.bounding_box().max_corner.data[1]);
-            box.max_corner.data[2] = std::max(box.max_corner.data[2], prim.bounding_box().max_corner.data[2]);
+        bvh_node* node = new bvh_node;
+        node->box = aabb();
+        for (size_t i = start; i < end; i++) {
+            node->box = aabb::surrounding_box(node->box, primitives[i].bounding_box());
         }
+
+        if (end - start == 1) {
+            node->left = nullptr;
+            node->right = nullptr;
+            node->primitive = &primitives[start];
+        } else {
+            size_t axis = node->box.longest_axis();
+            size_t mid = (start + end) / 2;
+            std::nth_element(primitives.begin() + start, primitives.begin() + mid, primitives.begin() + end,
+                             [axis](const bvh_primitive& a, const bvh_primitive& b) {
+                                 return a.get_centroid().data[axis] < b.get_centroid().data[axis];
+                             });
+
+            node->left = build_recursive(primitives, start, mid);
+            node->right = build_recursive(primitives, mid, end);
+            node->primitive = nullptr;
+        }
+
+        return node;
     }
 };
 

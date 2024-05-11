@@ -17,6 +17,10 @@ public:
         return vector3{data[0] + other.data[0], data[1] + other.data[1], data[2] + other.data[2]};
     }
 
+    vector3 operator-(const vector3& other) const {
+        return vector3{data[0] - other.data[0], data[1] - other.data[1], data[2] - other.data[2]};
+    }
+
     vector3 operator*(float scalar) const {
         return vector3{data[0] * scalar, data[1] * scalar, data[2] * scalar};
     }

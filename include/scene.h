@@ -45,6 +45,32 @@ public:
             std::cout << std::endl;
         }
     }
+
+    std::vector<float> vertices() const {
+        std::vector<float> vertices;
+        for (const auto& triangle : triangles) {
+            for (int i = 0; i < 3; i++) {
+                vertices.push_back(triangle.vertex(i).data[0]);
+                vertices.push_back(triangle.vertex(i).data[1]);
+                vertices.push_back(triangle.vertex(i).data[2]);
+            }
+        }
+        return vertices;
+    }
+
+    std::vector<unsigned int> indices() const {
+        std::vector<unsigned int> indices;
+        for (size_t i = 0; i < triangles.size(); i++) {
+            indices.push_back(i * 3);
+            indices.push_back(i * 3 + 1);
+            indices.push_back(i * 3 + 2);
+        }
+        return indices;
+    }
+
+    bvh get_bvh() {
+        return bvh(triangles);
+    }
 };
 
 #endif //BVH_SCENE_H

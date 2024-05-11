@@ -24,6 +24,8 @@ public:
         // TODO: Calculate normal
     }
 
+    triangle(const vector3& v0, const vector3& v1, const vector3& v2): vertices{v0, v1, v2} {}
+
     const vector3& vertex(int i) const {
         if(i < 0 || i > 2) {
             throw std::out_of_range("Triangle vertex index out of range");
