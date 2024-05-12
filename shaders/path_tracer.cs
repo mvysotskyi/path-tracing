@@ -130,6 +130,9 @@ struct Triangle{
     vec3  color;
     uint  reflection_type;
 };
+
+layout (std430, binding=1) buffer triangle_buffer { Triangle triangles_aux[]; };
+
 struct HitInfo
 {
     float dist;
@@ -220,7 +223,7 @@ bool Intersect(Sphere sphere, inout Ray ray) {
     return false;
 }
 
-const vec3 EYE = vec3(50.0f, 52.0f, 295.6f);
+const vec3 EYE = vec3(0.0f, 0.0f, 295.6f);
 const float FOV = 0.4135f;
 
 const float SCENE_REFRACTIVE_INDEX_OUT = 1.0f;
@@ -324,30 +327,37 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
         vec3(1,0,0),
          1u);
     triangles[9] = Triangle(
-        vec3[3](vec3(-size, -size, -size), vec3(-size, size, size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
+        vec3[3](vec3(0, 50, -450), vec3(0, 0, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
         vec3(0.0f),
-        vec3(1,0,0),
+        vec3(0,1,1),
 1u);
 
     // Right-facing triangles
     triangles[10] = Triangle(
-        vec3[3](vec3(50, 50, 300), vec3(50, -50, 300), vec3(-50, 50, 300)),vec3(0.0f,0.0f,0.0f),
+        vec3[3](vec3(0, 50, -450), vec3(50, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
         vec3(0),
         vec3(0,1,0),
 1u);
     triangles[1] = Triangle(
-        vec3[3](vec3(80, 80, -480), vec3(80, -80, -500), vec3(-80, 80, -500)),vec3(0.0f,0.0f,0.0f),
+        vec3[3](vec3(8, 8, 0), vec3(8, 2, -400), vec3(-8, 8, -400)),vec3(0.0f,0.0f,0.0f),
         vec3(0),
         vec3(0,1,0),
 1u);
 
+    vec3 vertex = triangles_aux[0].vertices[0];
+    vec3 v2 = triangles_aux[0].vertices[1];
+    vec3 v3 = triangles_aux[0].vertices[2];
+
+    triangles[1].vertices[0] = v3;
+//     triangles[1].vertices[1] = v3;
+//     triangles[1].vertices[2] = v2 + vec3(100, 300, 10);
 
     while (true){
         int i = 0;
         HitInfo info;
         HitInfo min_info;
         min_info.dist = 999999999;
-        while(i < 5){
+        while(i < 12){
             info =  FindHit(triangles[i], r);
             if (info.dist > 0){
                 if (info.dist < min_info.dist){
@@ -466,7 +476,7 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
 }
 
 vec3 CalculateRadiance(vec2 fragCoord, inout uint state) {
-	vec3  camera_direction = normalize(vec3(0.0f, -0.042612f, -1.0f));
+	vec3  camera_direction = normalize(vec3(0.0f, 0.0f, -1.0f));
 	vec3  camera_x = vec3(resolution.x * FOV / resolution.y, 0.0f, 0.0f);
 	vec3  camera_y = normalize(cross(camera_x, camera_direction)) * FOV;
 

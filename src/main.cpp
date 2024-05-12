@@ -4,9 +4,12 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <vector>
 
 #include "shader.h"
 #include "compute_shader.h"
+
+#include "scene.h"
 
 #define SCR_WIDTH 1920
 #define SCR_HEIGHT 1080
@@ -41,6 +44,29 @@ void render_quad() {
 }
 
 const unsigned int TEXTURE_WIDTH = SCR_WIDTH, TEXTURE_HEIGHT = SCR_HEIGHT;
+
+GLuint trianglesSSBO;
+
+void init_scene(const std::string& filename) {
+    scene s(filename);
+    auto& triangles = s.get_triangles();
+
+    shader_triangle* shader_triangles = new shader_triangle[triangles.size()];
+    for (int i = 0; i < triangles.size(); i++) {
+        shader_triangles[i] = triangles[i].to_shader_triangle();
+    }
+
+    std::cout << shader_triangles[0].vertices[2][0] << std::endl;
+
+    glGenBuffers(1, &trianglesSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER,
+                 static_cast<GLsizeiptr>(triangles.size() * sizeof(shader_triangle)),
+                 shader_triangles, GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, trianglesSSBO);
+
+    delete[] shader_triangles;
+}
 
 int main()
 {
@@ -93,6 +119,8 @@ int main()
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
+
+    init_scene("../resources/test.obj");
 
     int cnt = 0;
     while (!glfwWindowShouldClose(window))

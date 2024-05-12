@@ -71,6 +71,10 @@ public:
     bvh get_bvh() {
         return bvh(triangles);
     }
+
+    const std::vector<triangle>& get_triangles() const {
+        return triangles;
+    }
 };
 
 #endif //BVH_SCENE_H
