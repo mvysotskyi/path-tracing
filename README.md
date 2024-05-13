@@ -16,6 +16,13 @@ Install up to your system
 
 To compile our project you can simply use CMakeLists.txt
 
+```
+mkdir build; cd build
+cmake ..
+make
+./pathtracer
+```
+
 After running binary file, the pathtracer window will pop up.
 
 The image will get progressively better with time as it is sampling new rays.
