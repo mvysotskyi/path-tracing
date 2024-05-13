@@ -8,7 +8,7 @@ https://www.overleaf.com/read/kkydygvgjfyc#01b60f
 
 ### Requirements
 
-OpenGL, glfw 
+OpenGL, glfw, Glew, glm
 
 Install up to your system
 
