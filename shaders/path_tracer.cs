@@ -344,14 +344,6 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
         vec3(0,1,0),
 1u);
 
-    vec3 vertex = triangles_aux[0].vertices[0];
-    vec3 v2 = triangles_aux[0].vertices[1];
-    vec3 v3 = triangles_aux[0].vertices[2];
-
-    triangles[1].vertices[0] = v3;
-//     triangles[1].vertices[1] = v3;
-//     triangles[1].vertices[2] = v2 + vec3(100, 300, 10);
-
     while (true){
         int i = 0;
         HitInfo info;

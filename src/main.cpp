@@ -56,8 +56,6 @@ void init_scene(const std::string& filename) {
         shader_triangles[i] = triangles[i].to_shader_triangle();
     }
 
-    std::cout << shader_triangles[0].vertices[2][0] << std::endl;
-
     glGenBuffers(1, &trianglesSSBO);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesSSBO);
     glBufferData(GL_SHADER_STORAGE_BUFFER,
