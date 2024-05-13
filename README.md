@@ -1,14 +1,14 @@
-### Solving rendering equation using Monte Carlo method
+## Solving rendering equation using Monte Carlo method
 
 Implementation of pathtracer using OpenGL
 
-#### Requirements
+### Requirements
 
 OpenGL, glfw 
 
 Install up to your system
 
-#### Usage:
+### Usage:
 
 To compile our project you can simply use CMakeLists.txt
 
@@ -16,13 +16,13 @@ After running binary file, the pathtracer window will pop up.
 
 The image will get progressively better with time as it is sampling new rays.
 
-#### Results:
+### Results:
 
 Example of pathtracing with spheres
 ![image1](https://github.com/mvysotskyi/path-tracing/assets/91287481/d5cf57d9-2e52-4c4a-9c4d-f589ec1cfed3)
 
 
-#### Team:
+### Team:
 
 Petro Prokopets
 
