@@ -6,7 +6,7 @@ const float FLOAT_INF = 1e20f;
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D texture0;
 
-uniform ivec2 resolution = ivec2(1920,1080);//ivec2(800, 600);
+uniform ivec2 resolution = ivec2(280,280);//ivec2(800, 600);
 
 float Max(vec3 v) {
     return max(v.x, max(v.y, v.z));
@@ -224,7 +224,7 @@ bool Intersect(Sphere sphere, inout Ray ray) {
     return false;
 }
 
-const vec3 EYE = vec3(0.0f, 0.0f, 295.6f);
+const vec3 EYE = vec3(0.0f, 10.0f, 200.6f);
 const float FOV = 0.4135f;
 
 const float SCENE_REFRACTIVE_INDEX_OUT = 1.0f;
@@ -256,110 +256,123 @@ bool Intersect(inout Ray ray, out uint id) {
 	return hit;
 }
 
+layout (location = 0) uniform float time;
+layout (location = 1) uniform int frame;
+
+const int faces_count = 32;
+
+Triangle triangles[12 + faces_count];
+
+void init_triangles() {
+        float size = 500.0f; // Adjust the size as needed
+
+        triangles[0] = Triangle(
+                vec3[3](vec3(size, -size, size), vec3(size, size, size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
+                vec3(0.0f),
+                vec3(1,0,0),
+                1u);
+            triangles[11] = Triangle(
+                vec3[3](vec3(-size, size, size), vec3(-size, -size, size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
+                vec3(0.0f),
+                vec3(1,0,0),
+                1u);
+
+            // Back-facing triangles
+            triangles[2] = Triangle(
+                vec3[3](vec3(size, size, -size), vec3(size, -size, -size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
+                vec3(0.0f),
+                vec3(1,0,0),
+                1u);
+            triangles[3] = Triangle(
+                vec3[3](vec3(-size, -size, -size), vec3(-size, size, -size), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
+                vec3(10.0f),
+                vec3(0),
+                1u);
+
+            // Top-facing triangles
+            triangles[4] = Triangle(
+                vec3[3](vec3(-size, size, size), vec3(-size, size, -size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
+                vec3(10.0f),
+                vec3(0),
+                1u);
+            triangles[5] = Triangle(
+                vec3[3](vec3(0, 0, -0), vec3(0, 0, 0), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
+                vec3(0.0f),
+                vec3(0),
+                1u);
+
+            // Bottom-facing triangles
+            triangles[6] = Triangle(
+                vec3[3](vec3(0, 0, 0), vec3(0, 0, 0), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
+                vec3(10.0f),
+                vec3(0),
+                1u);
+            triangles[7] = Triangle(
+                vec3[3](vec3(0, 0, 0), vec3(0, 0, 0), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
+                vec3(10.0f),
+                vec3(0),
+                1u);
+
+            // Left-facing triangles
+            triangles[8] = Triangle(
+                vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
+                vec3(0.0f),
+                vec3(1,0,0),
+                 1u);
+            triangles[9] = Triangle(
+                vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
+                vec3(0.0f),
+                vec3(0,1,1),
+        1u);
+
+            // Right-facing triangles
+            triangles[10] = Triangle(
+                vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
+                vec3(0),
+                vec3(0,1,0),
+        1u);
+            triangles[1] = Triangle(
+                vec3[3](vec3(8, 8, 0), vec3(8, 8, 0), vec3(-8, 8, -400)),vec3(0.0f,0.0f,0.0f),
+                vec3(0),
+                vec3(0,1,0),
+        1u);
+
+    for (int i = 12; i < 12 + faces_count; i++){
+        vec3[3] vertix;
+
+        int j = i - 12;
+        vec4 idx = indices[j];
+
+        vertix[0] = vertices[int(idx.x)].xyz;
+        vertix[1] = vertices[int(idx.y)].xyz;
+        vertix[2] = vertices[int(idx.z)].xyz;
+
+        vec3 color = vec4(0.5, 0.5, .5, 1).xyz;
+
+        triangles[i] = Triangle(
+            vertix,
+            vec3(0),
+            vec3(0),
+            color,
+            1u);
+    }
+
+    triangles[12 + 31].emission = vec3(5.0f);
+    triangles[12 + 30].emission = vec3(5.0f);
+}
+
 vec3 CalculateRadiance(Ray ray, inout uint state) {
     Ray  r = Ray(ray.origin, ray.direction, ray.tmin, ray.tmax, ray.depth);
 
     vec3 L = vec3(0.0f);
     vec3 F = vec3(1.0f);
 
-    float size = 500.0f; // Adjust the size as needed
-    Triangle triangles[16];
-    // Front-facing triangles
-    triangles[0] = Triangle(
-        vec3[3](vec3(size, -size, size), vec3(size, size, size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
-        vec3(0.0f),
-        vec3(1,0,0),
-        1u);
-    triangles[11] = Triangle(
-        vec3[3](vec3(-size, size, size), vec3(-size, -size, size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
-        vec3(0.0f),
-        vec3(1,0,0),
-        1u);
-
-    // Back-facing triangles
-    triangles[2] = Triangle(
-        vec3[3](vec3(size, size, -size), vec3(size, -size, -size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-        vec3(0.0f),
-        vec3(1,0,0),
-        1u);
-    triangles[3] = Triangle(
-        vec3[3](vec3(-size, -size, -size), vec3(-size, size, -size), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
-        vec3(10.0f),
-        vec3(0),
-        1u);
-
-    // Top-facing triangles
-    triangles[4] = Triangle(
-        vec3[3](vec3(-size, size, size), vec3(-size, size, -size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
-        vec3(10.0f),
-        vec3(0),
-        1u);
-    triangles[5] = Triangle(
-        vec3[3](vec3(size, size, -size), vec3(size, size, size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-        vec3(0.0f),
-        vec3(0),
-        1u);
-
-    // Bottom-facing triangles
-    triangles[6] = Triangle(
-        vec3[3](vec3(-size, -size, -size), vec3(-size, -size, size), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
-        vec3(10.0f),
-        vec3(0),
-        1u);
-    triangles[7] = Triangle(
-        vec3[3](vec3(size, -size, size), vec3(size, -size, -size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
-        vec3(10.0f),
-        vec3(0),
-        1u);
-
-    // Left-facing triangles
-    triangles[8] = Triangle(
-        vec3[3](vec3(-size, size, size), vec3(-size, -size, -size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-        vec3(0.0f),
-        vec3(1,0,0),
-         1u);
-    triangles[9] = Triangle(
-        vec3[3](vec3(0, 50, -450), vec3(0, 0, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
-        vec3(0.0f),
-        vec3(0,1,1),
-1u);
-
-    // Right-facing triangles
-    triangles[10] = Triangle(
-        vec3[3](vec3(0, 50, -450), vec3(50, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
-        vec3(0),
-        vec3(0,1,0),
-1u);
-    triangles[1] = Triangle(
-        vec3[3](vec3(8, 8, 0), vec3(8, 2, -400), vec3(-8, 8, -400)),vec3(0.0f,0.0f,0.0f),
-        vec3(0),
-        vec3(0,1,0),
-1u);
-
-            for (int i = 12; i < 16; i++){
-                vec3[3] vertix;
-
-                int j = i - 12;
-                vec4 idx = indices[j];
-
-                vertix[0] = vertices[int(idx.x)].xyz;
-                vertix[1] = vertices[int(idx.y)].xyz;
-                vertix[2] = vertices[int(idx.z)].xyz;
-
-                triangles[i] = Triangle(
-                    vertix,
-                    vec3(0),
-                    vec3(0),
-                    vec3(0,0,1),
-            1u);
-            }
-
     while (true){
         int i = 0;
         HitInfo info;
         HitInfo min_info;
         min_info.dist = 999999999;
-        while(i < 16){
+        while(i < 12 + faces_count){
             info =  FindHit(triangles[i], r);
             if (info.dist > 0){
                 if (info.dist < min_info.dist){
@@ -478,7 +491,7 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
 }
 
 vec3 CalculateRadiance(vec2 fragCoord, inout uint state) {
-	vec3  camera_direction = normalize(vec3(0.0f, 0.0f, -1.0f));
+	vec3  camera_direction = normalize(vec3(0.0f, 0.1f, -1.0f));
 	vec3  camera_x = vec3(resolution.x * FOV / resolution.y, 0.0f, 0.0f);
 	vec3  camera_y = normalize(cross(camera_x, camera_direction)) * FOV;
 
@@ -488,8 +501,7 @@ vec3 CalculateRadiance(vec2 fragCoord, inout uint state) {
     return CalculateRadiance(Ray(EYE + d * 130.0f, normalize(d), EPSILON, FLOAT_INF, 0u), state);
 }
 
-layout (location = 0) uniform float time;
-layout (location = 1) uniform int frame;
+
 
 void main() {
     ivec2 fragCoord = ivec2(gl_GlobalInvocationID.xy);
@@ -497,6 +509,10 @@ void main() {
     uint  index = uint(fragCoord.y * resolution.x + fragCoord.x);
     uint  key = index ^ floatBitsToUint(time);
     uint  state = Hash(key);
+
+    if(frame <= 1){
+        init_triangles();
+    }
 
     vec3  hdr = CalculateRadiance(fragCoord, state);
     vec3  mean = imageLoad(texture0, fragCoord).xyz;

@@ -31,7 +31,9 @@ public:
 
         // Vertices
         for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
-            m_vertices.push_back(vec3{attrib.vertices[i], attrib.vertices[i + 1], attrib.vertices[i + 2]});
+            m_vertices.push_back(
+                    vec3{attrib.vertices[i], attrib.vertices[i + 1], attrib.vertices[i + 2]} * 30.0f + vec3(0, 0, 0)
+                    );
         }
 
         for (const auto& shape : shapes) {

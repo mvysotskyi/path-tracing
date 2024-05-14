@@ -11,8 +11,8 @@
 
 #include "scene.h"
 
-#define SCR_WIDTH 1920
-#define SCR_HEIGHT 1080
+#define SCR_WIDTH 280
+#define SCR_HEIGHT 280
 
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
@@ -86,10 +86,12 @@ void ssbo_trinagles(const scene& s) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 };
 
-void init_scene(const std::string& filename) {
+int init_scene(const std::string& filename) {
     scene s(filename);
     ssbo_vertices(s);
     ssbo_trinagles(s);
+
+    return s.get_triangles().size();
 }
 
 int main()
@@ -144,7 +146,8 @@ int main()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    init_scene("../resources/test.obj");
+    int faces = init_scene("../resources/cornell-box.obj");
+    std::cout << faces;
 
     int cnt = 0;
     while (!glfwWindowShouldClose(window))
@@ -153,6 +156,7 @@ int main()
         cs.use();
         cs.set_float("time", cnt);
         cs.set_int("frame", cnt);
+
         glDispatchCompute((unsigned int)SCR_WIDTH/16, (unsigned int)SCR_HEIGHT/16, 1);
 
         // make sure writing to image has finished before read
