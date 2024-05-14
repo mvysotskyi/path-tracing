@@ -47,6 +47,8 @@ const unsigned int TEXTURE_WIDTH = SCR_WIDTH, TEXTURE_HEIGHT = SCR_HEIGHT;
 
 GLuint verticesSSBO;
 GLuint trianglesSSBO;
+GLuint emissionSSBO;
+GLuint colorSSBO;
 
 struct glsl_vec {
     glm::vec4 pos;
@@ -54,6 +56,14 @@ struct glsl_vec {
 
 struct glsl_triangle {
     glm::vec4 v_ids;
+};
+
+struct glsl_emission {
+    glm::vec4 emission;
+};
+
+struct glsl_color {
+    glm::vec4 color;
 };
 
 void ssbo_vertices(const scene& s) {
@@ -76,7 +86,7 @@ void ssbo_trinagles(const scene& s) {
 
     for (uint32_t i = 0; i < triangles.size(); i++) {
         glsl_triangles.push_back(glsl_triangle{
-            glm::vec4(triangles[i].vertices_ids[0], triangles[i].vertices_ids[1], triangles[i].vertices_ids[2], 0)});
+            glm::vec4(triangles[i].vertices_ids[0], triangles[i].vertices_ids[1], triangles[i].vertices_ids[2], static_cast<float>(i))});
     }
 
     glGenBuffers(1, &trianglesSSBO);
@@ -84,7 +94,37 @@ void ssbo_trinagles(const scene& s) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, glsl_triangles.size() * sizeof(glsl_triangle), glsl_triangles.data(), GL_STATIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, trianglesSSBO);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-};
+}
+
+void ssbo_emission(const scene& s) {
+    int triangles_size = s.get_triangles().size();
+    std::vector<glsl_emission> glsl_emission;
+
+    for (int i = 0; i < triangles_size; i++) {
+        glsl_emission.push_back({glm::vec4(0)});
+    }
+
+    glGenBuffers(1, &emissionSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, emissionSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, glsl_emission.size() * sizeof(glsl_emission), glsl_emission.data(), GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, emissionSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+void ssbo_color(const scene& s) {
+    int triangles_size = s.get_triangles().size();;
+    std::vector<glsl_color> glsl_color;
+
+    for (int i = 0; i < triangles_size; i++){
+        glsl_color.push_back({glm::vec4(0.5, 0.5, 0.1, 0)});
+    }
+
+    glGenBuffers(1, &colorSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, glsl_color.size() * sizeof(glsl_color), glsl_color.data(), GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, colorSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
 
 int init_scene(const std::string& filename) {
     scene s(filename);

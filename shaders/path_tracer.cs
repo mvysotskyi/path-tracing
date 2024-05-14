@@ -133,6 +133,8 @@ struct Triangle{
 
 layout (std430, binding=1) buffer vertex_buffer { vec4 vertices[]; };
 layout (std430, binding=2) buffer index_buffer { vec4 indices[]; };
+layout (std430, binding=3) buffer emm_buffer { vec4 emissions[]; };
+layout (std430, binding=4) buffer color_buffer { vec4 colors[]; };
 
 struct HitInfo
 {
@@ -149,11 +151,11 @@ struct HitInfo
 };
 
 //Moller-Trumbore
-HitInfo FindHit(Triangle triangle, Ray ray)
+HitInfo FindHit(vec4 triangle, Ray ray)
 {
     float e = 1e-3;
-    vec3 edge1 = triangle.vertices[1] - triangle.vertices[0];
-    vec3 edge2 = triangle.vertices[2] - triangle.vertices[0];
+    vec3 edge1 = vertices[int(triangle.y)].xyz - vertices[int(triangle.x)].xyz;
+    vec3 edge2 = vertices[int(triangle.z)].xyz - vertices[int(triangle.x)].xyz;
     HitInfo obj_hit;
     vec3 h = cross(ray.direction, edge2);
     float a = dot(edge1, h);
@@ -163,7 +165,7 @@ HitInfo FindHit(Triangle triangle, Ray ray)
         return obj_hit;
     }
     float f = 1.0 / a;
-    vec3 s = ray.origin - triangle.vertices[0];
+    vec3 s = ray.origin - vertices[int(triangle.x)].xyz;
     float u = dot(s,h) * f;
     if (u < 0.0 || u > 1.0){
         obj_hit.dist = -2;
@@ -188,9 +190,9 @@ HitInfo FindHit(Triangle triangle, Ray ray)
     obj_hit.position = ray.origin + ray.direction * obj_hit.dist;
     obj_hit.normal = normalize(cross(edge1, edge2));
     obj_hit.transmitted = false;
-    obj_hit.emission = triangle.emission;
-    obj_hit.color = triangle.color;
-    obj_hit.reflection_type = triangle.reflection_type;
+    obj_hit.emission = vec3(1.0f);
+    obj_hit.color = vec3(0.5, 0.5, 0.1);
+    obj_hit.reflection_type = 1u;
     obj_hit.ray = ray;
 
     return obj_hit;
@@ -262,104 +264,104 @@ layout (location = 1) uniform int frame;
 const int faces_count = 32;
 
 Triangle triangles[12 + faces_count];
-
-void init_triangles() {
-        float size = 500.0f; // Adjust the size as needed
-
-        triangles[0] = Triangle(
-                vec3[3](vec3(size, -size, size), vec3(size, size, size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
-                1u);
-            triangles[11] = Triangle(
-                vec3[3](vec3(-size, size, size), vec3(-size, -size, size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
-                1u);
-
-            // Back-facing triangles
-            triangles[2] = Triangle(
-                vec3[3](vec3(size, size, -size), vec3(size, -size, -size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
-                1u);
-            triangles[3] = Triangle(
-                vec3[3](vec3(-size, -size, -size), vec3(-size, size, -size), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(10.0f),
-                vec3(0),
-                1u);
-
-            // Top-facing triangles
-            triangles[4] = Triangle(
-                vec3[3](vec3(-size, size, size), vec3(-size, size, -size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
-                vec3(10.0f),
-                vec3(0),
-                1u);
-            triangles[5] = Triangle(
-                vec3[3](vec3(0, 0, -0), vec3(0, 0, 0), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(0),
-                1u);
-
-            // Bottom-facing triangles
-            triangles[6] = Triangle(
-                vec3[3](vec3(0, 0, 0), vec3(0, 0, 0), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(10.0f),
-                vec3(0),
-                1u);
-            triangles[7] = Triangle(
-                vec3[3](vec3(0, 0, 0), vec3(0, 0, 0), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
-                vec3(10.0f),
-                vec3(0),
-                1u);
-
-            // Left-facing triangles
-            triangles[8] = Triangle(
-                vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
-                 1u);
-            triangles[9] = Triangle(
-                vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(0,1,1),
-        1u);
-
-            // Right-facing triangles
-            triangles[10] = Triangle(
-                vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
-                vec3(0),
-                vec3(0,1,0),
-        1u);
-            triangles[1] = Triangle(
-                vec3[3](vec3(8, 8, 0), vec3(8, 8, 0), vec3(-8, 8, -400)),vec3(0.0f,0.0f,0.0f),
-                vec3(0),
-                vec3(0,1,0),
-        1u);
-
-    for (int i = 12; i < 12 + faces_count; i++){
-        vec3[3] vertix;
-
-        int j = i - 12;
-        vec4 idx = indices[j];
-
-        vertix[0] = vertices[int(idx.x)].xyz;
-        vertix[1] = vertices[int(idx.y)].xyz;
-        vertix[2] = vertices[int(idx.z)].xyz;
-
-        vec3 color = vec4(0.5, 0.5, .5, 1).xyz;
-
-        triangles[i] = Triangle(
-            vertix,
-            vec3(0),
-            vec3(0),
-            color,
-            1u);
-    }
-
-    triangles[12 + 31].emission = vec3(5.0f);
-    triangles[12 + 30].emission = vec3(5.0f);
-}
+//
+// void init_triangles() {
+//         float size = 500.0f; // Adjust the size as needed
+//
+//         triangles[0] = Triangle(
+//                 vec3[3](vec3(size, -size, size), vec3(size, size, size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0.0f),
+//                 vec3(1,0,0),
+//                 1u);
+//             triangles[11] = Triangle(
+//                 vec3[3](vec3(-size, size, size), vec3(-size, -size, size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0.0f),
+//                 vec3(1,0,0),
+//                 1u);
+//
+//             // Back-facing triangles
+//             triangles[2] = Triangle(
+//                 vec3[3](vec3(size, size, -size), vec3(size, -size, -size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0.0f),
+//                 vec3(1,0,0),
+//                 1u);
+//             triangles[3] = Triangle(
+//                 vec3[3](vec3(-size, -size, -size), vec3(-size, size, -size), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(10.0f),
+//                 vec3(0),
+//                 1u);
+//
+//             // Top-facing triangles
+//             triangles[4] = Triangle(
+//                 vec3[3](vec3(-size, size, size), vec3(-size, size, -size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(10.0f),
+//                 vec3(0),
+//                 1u);
+//             triangles[5] = Triangle(
+//                 vec3[3](vec3(0, 0, -0), vec3(0, 0, 0), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0.0f),
+//                 vec3(0),
+//                 1u);
+//
+//             // Bottom-facing triangles
+//             triangles[6] = Triangle(
+//                 vec3[3](vec3(0, 0, 0), vec3(0, 0, 0), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(10.0f),
+//                 vec3(0),
+//                 1u);
+//             triangles[7] = Triangle(
+//                 vec3[3](vec3(0, 0, 0), vec3(0, 0, 0), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(10.0f),
+//                 vec3(0),
+//                 1u);
+//
+//             // Left-facing triangles
+//             triangles[8] = Triangle(
+//                 vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0.0f),
+//                 vec3(1,0,0),
+//                  1u);
+//             triangles[9] = Triangle(
+//                 vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0.0f),
+//                 vec3(0,1,1),
+//         1u);
+//
+//             // Right-facing triangles
+//             triangles[10] = Triangle(
+//                 vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0),
+//                 vec3(0,1,0),
+//         1u);
+//             triangles[1] = Triangle(
+//                 vec3[3](vec3(8, 8, 0), vec3(8, 8, 0), vec3(-8, 8, -400)),vec3(0.0f,0.0f,0.0f),
+//                 vec3(0),
+//                 vec3(0,1,0),
+//         1u);
+//
+//     for (int i = 12; i < 12 + faces_count; i++){
+//         vec3[3] vertix;
+//
+//         int j = i - 12;
+//         vec4 idx = indices[j];
+//
+//         vertix[0] = vertices[int(idx.x)].xyz;
+//         vertix[1] = vertices[int(idx.y)].xyz;
+//         vertix[2] = vertices[int(idx.z)].xyz;
+//
+//         vec3 color = vec4(0.5, 0.5, .5, 1).xyz;
+//
+//         triangles[i] = Triangle(
+//             vertix,
+//             vec3(0),
+//             vec3(0),
+//             color,
+//             1u);
+//     }
+//
+//     triangles[12 + 31].emission = vec3(5.0f);
+//     triangles[12 + 30].emission = vec3(5.0f);
+// }
 
 vec3 CalculateRadiance(Ray ray, inout uint state) {
     Ray  r = Ray(ray.origin, ray.direction, ray.tmin, ray.tmax, ray.depth);
@@ -373,7 +375,7 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
         HitInfo min_info;
         min_info.dist = 999999999;
         while(i < 12 + faces_count){
-            info =  FindHit(triangles[i], r);
+            info =  FindHit(indices[i], r);
             if (info.dist > 0){
                 if (info.dist < min_info.dist){
                 min_info = info;
@@ -502,17 +504,12 @@ vec3 CalculateRadiance(vec2 fragCoord, inout uint state) {
 }
 
 
-
 void main() {
     ivec2 fragCoord = ivec2(gl_GlobalInvocationID.xy);
 
     uint  index = uint(fragCoord.y * resolution.x + fragCoord.x);
     uint  key = index ^ floatBitsToUint(time);
     uint  state = Hash(key);
-
-    if(frame <= 1){
-        init_triangles();
-    }
 
     vec3  hdr = CalculateRadiance(fragCoord, state);
     vec3  mean = imageLoad(texture0, fragCoord).xyz;
