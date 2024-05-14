@@ -224,8 +224,8 @@ bool Intersect(Sphere sphere, inout Ray ray) {
     return false;
 }
 
-const vec3 EYE = vec3(0.0f, 10.0f, 230.6f);
-const float FOV = 0.2735f;
+const vec3 EYE = vec3(0.0f, 11.0f, 240.6f);
+const float FOV = 0.2635f;
 
 const float SCENE_REFRACTIVE_INDEX_OUT = 1.0f;
 const float SCENE_REFRACTIVE_INDEX_IN  = 1.5f;
@@ -356,7 +356,10 @@ void init_triangles() {
             color,
             1u);
     }
-
+    triangles[12 + 7].color = vec3(1,0,0);
+    triangles[12 + 6].color = vec3(1,0,0);
+        triangles[12 + 9].color = vec3(0,1,0);
+        triangles[12 + 8].color = vec3(0,1,0);
     triangles[12 + 31].emission = vec3(15.0f);
     triangles[12 + 30].emission = vec3(55.0f);
         triangles[12 + 31].color = vec3(0.0f);
@@ -493,7 +496,7 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
 }
 
 vec3 CalculateRadiance(vec2 fragCoord, inout uint state) {
-	vec3  camera_direction = normalize(vec3(0.0f, 0.1f, -1.0f));
+	vec3  camera_direction = normalize(vec3(0.0f, 0.08f, -1.0f));
 	vec3  camera_x = vec3(resolution.x * FOV / resolution.y, 0.0f, 0.0f);
 	vec3  camera_y = normalize(cross(camera_x, camera_direction)) * FOV;
 
