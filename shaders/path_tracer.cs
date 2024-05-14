@@ -6,7 +6,7 @@ const float FLOAT_INF = 1e20f;
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D texture0;
 
-uniform ivec2 resolution = ivec2(280,280);//ivec2(800, 600);
+uniform ivec2 resolution = ivec2(800,800);//ivec2(800, 600);
 
 float Max(vec3 v) {
     return max(v.x, max(v.y, v.z));
@@ -224,8 +224,8 @@ bool Intersect(Sphere sphere, inout Ray ray) {
     return false;
 }
 
-const vec3 EYE = vec3(0.0f, 10.0f, 200.6f);
-const float FOV = 0.4135f;
+const vec3 EYE = vec3(0.0f, 10.0f, 230.6f);
+const float FOV = 0.2735f;
 
 const float SCENE_REFRACTIVE_INDEX_OUT = 1.0f;
 const float SCENE_REFRACTIVE_INDEX_IN  = 1.5f;
@@ -268,20 +268,20 @@ void init_triangles() {
 
         triangles[0] = Triangle(
                 vec3[3](vec3(size, -size, size), vec3(size, size, size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
+                vec3(1.0f),
+                vec3(0,0,0),
                 1u);
             triangles[11] = Triangle(
                 vec3[3](vec3(-size, size, size), vec3(-size, -size, size), vec3(size, size, size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
+                vec3(1.0f),
+                vec3(0,0,0),
                 1u);
 
             // Back-facing triangles
             triangles[2] = Triangle(
                 vec3[3](vec3(size, size, -size), vec3(size, -size, -size), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
+                vec3(1.0f),
+                vec3(0,0,0),
                 1u);
             triangles[3] = Triangle(
                 vec3[3](vec3(-size, -size, -size), vec3(-size, size, -size), vec3(size, -size, -size)),vec3(0.0f,0.0f,0.0f),
@@ -297,7 +297,7 @@ void init_triangles() {
                 1u);
             triangles[5] = Triangle(
                 vec3[3](vec3(0, 0, -0), vec3(0, 0, 0), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
+                vec3(1.0f),
                 vec3(0),
                 1u);
 
@@ -316,28 +316,28 @@ void init_triangles() {
             // Left-facing triangles
             triangles[8] = Triangle(
                 vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(-size, size, -size)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(1,0,0),
+                vec3(1.0f),
+                vec3(0,0,0),
                  1u);
             triangles[9] = Triangle(
                 vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
-                vec3(0.0f),
-                vec3(0,1,1),
+                vec3(1),
+                vec3(0,0,0),
         1u);
 
             // Right-facing triangles
             triangles[10] = Triangle(
                 vec3[3](vec3(0, 50, -450), vec3(0, 50, -450), vec3(50, 0, -450)),vec3(0.0f,0.0f,0.0f),
-                vec3(0),
-                vec3(0,1,0),
+                vec3(1),
+                vec3(0,0,0),
         1u);
             triangles[1] = Triangle(
                 vec3[3](vec3(8, 8, 0), vec3(8, 8, 0), vec3(-8, 8, -400)),vec3(0.0f,0.0f,0.0f),
-                vec3(0),
-                vec3(0,1,0),
+                vec3(1),
+                vec3(0,0,0),
         1u);
 
-    for (int i = 12; i < 12 + faces_count; i++){
+    for (int i = 0; i < 12 + faces_count; i++){
         vec3[3] vertix;
 
         int j = i - 12;
@@ -347,7 +347,7 @@ void init_triangles() {
         vertix[1] = vertices[int(idx.y)].xyz;
         vertix[2] = vertices[int(idx.z)].xyz;
 
-        vec3 color = vec4(0.5, 0.5, .5, 1).xyz;
+        vec3 color = vec4(0.5, 0.5, 0.5, 0.5).xyz;
 
         triangles[i] = Triangle(
             vertix,
@@ -357,8 +357,10 @@ void init_triangles() {
             1u);
     }
 
-    triangles[12 + 31].emission = vec3(5.0f);
-    triangles[12 + 30].emission = vec3(5.0f);
+    triangles[12 + 31].emission = vec3(15.0f);
+    triangles[12 + 30].emission = vec3(55.0f);
+        triangles[12 + 31].color = vec3(0.0f);
+        triangles[12 + 30].color = vec3(0.0f);
 }
 
 vec3 CalculateRadiance(Ray ray, inout uint state) {
@@ -368,7 +370,7 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
     vec3 F = vec3(1.0f);
 
     while (true){
-        int i = 0;
+        int i = 11;
         HitInfo info;
         HitInfo min_info;
         min_info.dist = 999999999;
@@ -513,11 +515,14 @@ void main() {
     if(frame <= 1){
         init_triangles();
     }
-
-    vec3  hdr = CalculateRadiance(fragCoord, state);
-    vec3  mean = imageLoad(texture0, fragCoord).xyz;
+    vec3  hdr;
+    vec3  mean;
+    for (int i = 0; i < 1; i++){
+    hdr = CalculateRadiance(fragCoord, state);
+    mean = imageLoad(texture0, fragCoord).xyz;
     mean += (hdr - mean) / float(frame + 1);
-
+    //vec4 color = vec4(mean, 1.0f);
+    }
     vec4 color = vec4(mean, 1.0f);
     imageStore(texture0, fragCoord, color);
 }

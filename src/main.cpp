@@ -11,8 +11,8 @@
 
 #include "scene.h"
 
-#define SCR_WIDTH 280
-#define SCR_HEIGHT 280
+#define SCR_WIDTH 800
+#define SCR_HEIGHT 800
 
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
