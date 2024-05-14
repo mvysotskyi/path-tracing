@@ -12,13 +12,14 @@
 
 #include <glm/glm.hpp>
 
+using vec3 = glm::vec3;
+
 struct shader_triangle {
-    using vec3 = glm::vec3;
     vec3 vertices[3];
     vec3 normal;
     vec3 emission;
     vec3 color;
-    unsigned int recflection_type;
+    int32_t recflection_type;
 };
 
 class triangle {

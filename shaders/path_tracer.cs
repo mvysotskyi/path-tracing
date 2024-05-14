@@ -4,7 +4,6 @@ const float PI = 3.14159265358979323846f;
 const float FLOAT_INF = 1e20f;
 
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-
 layout(rgba32f, binding = 0) uniform image2D texture0;
 
 uniform ivec2 resolution = ivec2(1920,1080);//ivec2(800, 600);
@@ -123,6 +122,7 @@ struct Sphere {
 	vec3  color;
 	uint  reflection_type;
 };
+
 struct Triangle{
     vec3 vertices[3];
     vec3 normal;
@@ -131,7 +131,7 @@ struct Triangle{
     uint  reflection_type;
 };
 
-layout (std430, binding=1) buffer triangle_buffer { Triangle triangles_aux[]; };
+layout (std430, binding=1) buffer vertex_buffer { vec4 vertices[]; };
 
 struct HitInfo
 {
@@ -256,20 +256,11 @@ bool Intersect(inout Ray ray, out uint id) {
 }
 
 vec3 CalculateRadiance(Ray ray, inout uint state) {
-     Ray  r = Ray(ray.origin, ray.direction, ray.tmin, ray.tmax, ray.depth);
+    Ray  r = Ray(ray.origin, ray.direction, ray.tmin, ray.tmax, ray.depth);
 
-     vec3 L = vec3(0.0f);
-     vec3 F = vec3(1.0f);
+    vec3 L = vec3(0.0f);
+    vec3 F = vec3(1.0f);
 
-//     vec3 vertices[3];
-//     vertices[0] = vec3(50,0,100);
-//     vertices[1] = vec3(50,100,200);
-//     vertices[2] = vec3(50,1000,300);
-//     Triangle tri = Triangle(vertices,
-//     vec3(0.0f,0.0f,0.0f),
-//      vec3(12.0f),
-//      vec3(0.75f),
-//      1u);
     float size = 500.0f; // Adjust the size as needed
     Triangle triangles[12];
     // Front-facing triangles
@@ -343,6 +334,14 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
         vec3(0),
         vec3(0,1,0),
 1u);
+
+//        triangles[1].vertices = vec3[3](vertices[0].xyz, vertices[1].xyz, vertices[2].xyz);
+
+//     vec3 v = vertices[3];
+//
+//     triangles[1].vertices[0] = vec3(0, 0, -350);
+//     triangles[1].vertices[1] = vec3(100, 0, -350);
+//     triangles[1].vertices[2] = vec3(0, 100, -350);
 
     while (true){
         int i = 0;

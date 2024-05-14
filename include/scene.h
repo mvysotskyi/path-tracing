@@ -16,6 +16,7 @@
 
 class scene {
     std::vector<triangle> triangles;
+    std::vector<vec3> m_vertices;
 
 public:
     explicit scene(const std::string& obj_filepath) {
@@ -28,6 +29,11 @@ public:
             throw std::runtime_error(warn + err);
         }
 
+        // Vertices
+        for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
+            m_vertices.push_back(vec3{attrib.vertices[i], attrib.vertices[i + 1], attrib.vertices[i + 2]});
+        }
+
         for (const auto& shape : shapes) {
             for (size_t index = 0; index < shape.mesh.indices.size(); index += 3) {
                 triangles.emplace_back(shape, attrib, index);
@@ -36,26 +42,8 @@ public:
     }
 
 public:
-    void print_triangles() {
-        for (const auto& triangle : triangles) {
-            std::cout << "Triangle vertices: ";
-            for (int i = 0; i < 3; i++) {
-                std::cout << "(" << triangle.vertex(i).data[0] << ", " << triangle.vertex(i).data[1] << ", " << triangle.vertex(i).data[2] << ")";
-            }
-            std::cout << std::endl;
-        }
-    }
-
-    std::vector<float> vertices() const {
-        std::vector<float> vertices;
-        for (const auto& triangle : triangles) {
-            for (int i = 0; i < 3; i++) {
-                vertices.push_back(triangle.vertex(i).data[0]);
-                vertices.push_back(triangle.vertex(i).data[1]);
-                vertices.push_back(triangle.vertex(i).data[2]);
-            }
-        }
-        return vertices;
+    std::vector<vec3> vertices() const {
+        return m_vertices;
     }
 
     std::vector<unsigned int> indices() const {
