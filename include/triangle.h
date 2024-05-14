@@ -22,54 +22,14 @@ struct shader_triangle {
     int32_t recflection_type;
 };
 
-class triangle {
-    vector3 vertices[3];
-    vector3 normal;
+struct triangle {
+    uint32_t vertices_ids[3];
 
 public:
     triangle(const tinyobj::shape_t& shape, const tinyobj::attrib_t& attrib, size_t index) {
-        for (int i = 0; i < 3; i++) {
-            size_t vertex_index = shape.mesh.indices[index + i].vertex_index;
-            vertices[i] = vector3{attrib.vertices[3 * vertex_index], attrib.vertices[3 * vertex_index + 1], attrib.vertices[3 * vertex_index + 2]};
+        for (size_t i = 0; i < 3; i++) {
+            vertices_ids[i] = shape.mesh.indices[index + i].vertex_index;
         }
-
-        // Calculate normal
-        vector3 edge1 = vertices[1] - vertices[0];
-        vector3 edge2 = vertices[2] - vertices[0];
-        normal = edge1.cross(edge2).normalize();
-    }
-
-    triangle(const vector3& v0, const vector3& v1, const vector3& v2): vertices{v0, v1, v2} {}
-
-    const vector3& vertex(int i) const {
-        if(i < 0 || i > 2) {
-            throw std::out_of_range("Triangle vertex index out of range");
-        }
-        return vertices[i];
-    }
-
-    shader_triangle to_shader_triangle() const {
-        shader_triangle tri{};
-        for (int i = 0; i < 3; i++) {
-            tri.vertices[i][0] = vertices[i].data[0];
-            tri.vertices[i][1] = vertices[i].data[1];
-            tri.vertices[i][2] = vertices[i].data[2];
-        }
-        tri.normal[0] = normal.data[0];
-        tri.normal[1] = normal.data[1];
-        tri.normal[2] = normal.data[2];
-
-        tri.emission[0] = 0.0f;
-        tri.emission[1] = 0.0f;
-        tri.emission[2] = 0.0f;
-
-        tri.color[0] = 0.5f;
-        tri.color[1] = 0.5f;
-        tri.color[2] = 0.5f;
-
-        tri.recflection_type = 1u;
-
-        return tri;
     }
 };
 

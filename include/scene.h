@@ -9,7 +9,7 @@
 #include <vector>
 #include <limits>
 
-#include "bvh.h"
+//#include "bvh.h"
 #include "triangle.h"
 #include "tiny_obj_loader.h"
 
@@ -56,9 +56,9 @@ public:
         return indices;
     }
 
-    bvh get_bvh() {
-        return bvh(triangles);
-    }
+//    bvh get_bvh() {
+//        return bvh(triangles);
+//    }
 
     const std::vector<triangle>& get_triangles() const {
         return triangles;

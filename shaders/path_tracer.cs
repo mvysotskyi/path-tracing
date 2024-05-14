@@ -132,6 +132,7 @@ struct Triangle{
 };
 
 layout (std430, binding=1) buffer vertex_buffer { vec4 vertices[]; };
+layout (std430, binding=2) buffer index_buffer { vec4 indices[]; };
 
 struct HitInfo
 {
@@ -262,7 +263,7 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
     vec3 F = vec3(1.0f);
 
     float size = 500.0f; // Adjust the size as needed
-    Triangle triangles[12];
+    Triangle triangles[16];
     // Front-facing triangles
     triangles[0] = Triangle(
         vec3[3](vec3(size, -size, size), vec3(size, size, size), vec3(-size, -size, size)),vec3(0.0f,0.0f,0.0f),
@@ -335,20 +336,30 @@ vec3 CalculateRadiance(Ray ray, inout uint state) {
         vec3(0,1,0),
 1u);
 
-//        triangles[1].vertices = vec3[3](vertices[0].xyz, vertices[1].xyz, vertices[2].xyz);
+            for (int i = 12; i < 16; i++){
+                vec3[3] vertix;
 
-//     vec3 v = vertices[3];
-//
-//     triangles[1].vertices[0] = vec3(0, 0, -350);
-//     triangles[1].vertices[1] = vec3(100, 0, -350);
-//     triangles[1].vertices[2] = vec3(0, 100, -350);
+                int j = i - 12;
+                vec4 idx = indices[j];
+
+                vertix[0] = vertices[int(idx.x)].xyz;
+                vertix[1] = vertices[int(idx.y)].xyz;
+                vertix[2] = vertices[int(idx.z)].xyz;
+
+                triangles[i] = Triangle(
+                    vertix,
+                    vec3(0),
+                    vec3(0),
+                    vec3(0,0,1),
+            1u);
+            }
 
     while (true){
         int i = 0;
         HitInfo info;
         HitInfo min_info;
         min_info.dist = 999999999;
-        while(i < 12){
+        while(i < 16){
             info =  FindHit(triangles[i], r);
             if (info.dist > 0){
                 if (info.dist < min_info.dist){

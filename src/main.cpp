@@ -46,9 +46,14 @@ void render_quad() {
 const unsigned int TEXTURE_WIDTH = SCR_WIDTH, TEXTURE_HEIGHT = SCR_HEIGHT;
 
 GLuint verticesSSBO;
+GLuint trianglesSSBO;
 
 struct glsl_vec {
     glm::vec4 pos;
+};
+
+struct glsl_triangle {
+    glm::vec4 v_ids;
 };
 
 void ssbo_vertices(const scene& s) {
@@ -65,9 +70,26 @@ void ssbo_vertices(const scene& s) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
+void ssbo_trinagles(const scene& s) {
+    auto triangles = s.get_triangles();
+    std::vector<glsl_triangle> glsl_triangles;
+
+    for (uint32_t i = 0; i < triangles.size(); i++) {
+        glsl_triangles.push_back(glsl_triangle{
+            glm::vec4(triangles[i].vertices_ids[0], triangles[i].vertices_ids[1], triangles[i].vertices_ids[2], 0)});
+    }
+
+    glGenBuffers(1, &trianglesSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, glsl_triangles.size() * sizeof(glsl_triangle), glsl_triangles.data(), GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, trianglesSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+};
+
 void init_scene(const std::string& filename) {
     scene s(filename);
     ssbo_vertices(s);
+    ssbo_trinagles(s);
 }
 
 int main()
